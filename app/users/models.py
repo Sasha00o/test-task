@@ -10,7 +10,7 @@ class Users(Base):
     __tablename__ = 'users'
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, primary_key=True,  default=uuid.uuid4
+        UUID(as_uuid=True), nullable=False, primary_key=True,
     )
     email: Mapped[str] = mapped_column(String, unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String, nullable=False)

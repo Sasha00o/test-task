@@ -12,8 +12,8 @@ from app.exceptions import (
     UserIsNotPresentException,
     UserInactiveException,
 )
-from users.dao import UsersDAO
-from users.models import Users
+from app.users.dao import UsersDAO
+from app.users.models import Users
 
 
 def get_token(request: Request):
@@ -44,7 +44,7 @@ async def get_current_user(token: str = Depends(get_token)):
     user = await UsersDAO.find_by_id(uuid.UUID(user_id))
     if not user:
         raise UserIsNotPresentException
-    if user.isActive is False:
+    if user.is_active is False:
         raise UserInactiveException
 
     return user

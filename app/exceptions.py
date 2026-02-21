@@ -29,3 +29,15 @@ UserInactiveException = HTTPException(
     status_code=status.HTTP_423_LOCKED,
     detail='Пользователь деактивирован'
 )
+
+
+InsufficientPermissionsException = HTTPException(
+    status_code=status.HTTP_403_FORBIDDEN,
+    detail="Недостаточно прав"
+)
+
+
+NotFoundException = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail='Ресурс не найден'
+)
