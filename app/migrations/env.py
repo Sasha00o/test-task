@@ -10,6 +10,7 @@ from sqlalchemy import engine_from_config, pool
 from app.config import settings
 from app.users.models import Users
 from app.rules.models import Roles, Rules, Resources
+from app.businesses.models import Businesses
 from app.database import Base
 
 from os.path import abspath, dirname

@@ -1,7 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, Response
-from app.exceptions import IncorrectEmailOrPasswordException, NotFoundException, UserInactiveException, UsersAlreadyExistsException, InsufficientPermissionsException
+from app.exceptions import IncorrectEmailOrPasswordException, NotFoundException, UserInactiveException, UserAlreadyExistsException, InsufficientPermissionsException
 from app.users.dao import UsersDAO
 from app.users.dependencies import get_current_user
 from app.users.models import Users
@@ -18,11 +18,7 @@ router = APIRouter(prefix='/users',
 async def register_user(response: Response, user_data: SUserRegister):
     existing_user = await UsersDAO.find_one_or_none(email=user_data.email)
     if existing_user:
-        raise UsersAlreadyExistsException
-
-    if user_data.password != user_data.confirm_password:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                            detail='Пароли не совпадают')
+        raise UserAlreadyExistsException
 
     role = await RolesDAO.find_one_or_none(name='USER')
 
@@ -35,8 +31,8 @@ async def register_user(response: Response, user_data: SUserRegister):
         surname=user_data.surname,
         role_id=role.id
     )
-    access_token = create_access_token({'sub': str(user.id)})
-    response.set_cookie('accessToken', access_token, httponly=True)
+    access_token = create_access_token({'sub': str(user.id), 'type': 'user'})
+    response.set_cookie('userAccessToken', access_token, httponly=True)
 
     return {'ok': True}
 
@@ -50,14 +46,14 @@ async def login_user(response: Response, user_data: SUserLogin):
     if not user.is_active:
         raise UserInactiveException
     access_token = create_access_token({'sub': str(user.id)})
-    response.set_cookie('accessToken', access_token, httponly=True)
+    response.set_cookie('userAcessToken', access_token, httponly=True)
 
     return {'ok': True}
 
 
 @router.post('/auth/logout')
 async def logout_users(response: Response):
-    response.delete_cookie('booking_access_token')
+    response.delete_cookie('userAccessToken')
     return {'ok': True}
 
 

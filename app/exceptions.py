@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 
 
-UsersAlreadyExistsException = HTTPException(
+UserAlreadyExistsException = HTTPException(
     status_code=status.HTTP_409_CONFLICT,
     detail='Пользователь уже существует')
 IncorrectEmailOrPasswordException = HTTPException(
