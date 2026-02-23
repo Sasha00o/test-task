@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 import bcrypt
-import jwt
+from jose import jwt
 from passlib.context import CryptContext
 from pydantic import EmailStr
 

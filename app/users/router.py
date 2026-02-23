@@ -9,6 +9,7 @@ from app.users.schemas import SUserLogin, SUserRegister, SUserUpdate, SUserUpdat
 from fastapi import HTTPException, status
 from app.users.auth import authenticate_user, create_access_token, get_password_hash
 from app.rules.dao import RolesDAO
+from app.rules.dependencies import CheckUserPermission
 
 router = APIRouter(prefix='/users',
                    tags=['Пользователи'])
@@ -45,8 +46,8 @@ async def login_user(response: Response, user_data: SUserLogin):
 
     if not user.is_active:
         raise UserInactiveException
-    access_token = create_access_token({'sub': str(user.id)})
-    response.set_cookie('userAcessToken', access_token, httponly=True)
+    access_token = create_access_token({'sub': str(user.id), 'type': 'user'})
+    response.set_cookie('userAccessToken', access_token, httponly=True)
 
     return {'ok': True}
 
@@ -66,27 +67,21 @@ async def get_users_me(current_user: Users = Depends(
 @router.patch('/me')
 async def update_users_me(user_data: SUserUpdate,
                           current_user: Users = Depends(get_current_user)):
-    user = await UsersDAO.update_by_id(id=current_user.id,
-                                       email=user_data.email,
-                                       first_name=user_data.first_name,
-                                       last_name=user_data.last_name,
-                                       surname=user_data.surname,
-                                       )
+    update_data = user_data.model_dump(exclude_unset=True)
+    if not update_data:
+        return current_user
+    user = await UsersDAO.update_by_id(id=current_user.id, **update_data)
     return user
 
 
 @router.get('/{id}')
 async def get_user_by_id(
     id: uuid.UUID,
-    current_user: Users = Depends(get_current_user)
+    current_user=Depends(CheckUserPermission("USERS", "read_all_p"))
 ):
-    role = await RolesDAO.find_by_id(current_user.role_id)
-    if role.name != 'ADMIN' and id != current_user.id:
-        raise InsufficientPermissionsException
     user = await UsersDAO.find_one_or_none(id=id)
     if not user:
         raise NotFoundException
-
     return user
 
 
@@ -94,34 +89,22 @@ async def get_user_by_id(
 async def update_user_by_id(
     id: uuid.UUID,
     user_data: SUserUpdateById,
-    current_user: Users = Depends(get_current_user)
+    current_user=Depends(CheckUserPermission("USERS", "update_all_p"))
 ):
-    role = await RolesDAO.find_by_id(current_user.role_id)
-    if role.name != 'ADMIN' and id != current_user.id:
-        raise InsufficientPermissionsException
-    if user_data.role:
-        if role.name != 'ADMIN':
-            raise InsufficientPermissionsException
     user = await UsersDAO.find_one_or_none(id=id)
     if not user:
         raise NotFoundException
-
-    user = await UsersDAO.update_by_id(id=id,
-                                       email=user_data.email,
-                                       first_name=user_data.first_name,
-                                       last_name=user_data.last_name,
-                                       surname=user_data.surname,
-                                       )
+    update_data = user_data.model_dump(exclude_unset=True)
+    if not update_data:
+        return user
+    user = await UsersDAO.update_by_id(id=id, **update_data)
     return user
 
 
 @router.delete('/{id}', status_code=204)
 async def delete_user(
     id: uuid.UUID,
-    current_user: Users = Depends(get_current_user)
+    current_user=Depends(CheckUserPermission("USERS", "delete_all_p"))
 ):
-    role = await RolesDAO.find_by_id(current_user.role_id)
-    if role.name != 'ADMIN':
-        raise InsufficientPermissionsException
     await UsersDAO.delete_user_by_id(id=id)
     return

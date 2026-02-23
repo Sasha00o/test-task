@@ -28,13 +28,16 @@ async def create_businesses(response: Response, business_data: SBusinessRegister
         {'sub': str(business.id), 'type': 'business'})
     response.set_cookie('businessAccessToken', access_token, httponly=True)
 
+    return access_token
+
 
 @router.post('/auth/login')
 async def login_businesses(response: Response, business_data: SBusinessLogin):
     business = await authenticate_business(business_data.name, business_data.password)
     if not business:
         raise IncorrectEmailOrPasswordException
-    access_token = create_access_token({'sub': str(business.id)})
+    access_token = create_access_token(
+        {'sub': str(business.id), 'type': 'business'})
     response.set_cookie('businessAccessToken', access_token, httponly=True)
     return access_token
 

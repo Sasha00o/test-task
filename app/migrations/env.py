@@ -11,6 +11,8 @@ from app.config import settings
 from app.users.models import Users
 from app.rules.models import Roles, Rules, Resources
 from app.businesses.models import Businesses
+from app.goods.models import Goods
+from app.orders.models import Orders
 from app.database import Base
 
 from os.path import abspath, dirname

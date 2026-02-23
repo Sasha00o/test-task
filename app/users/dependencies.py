@@ -21,7 +21,7 @@ def get_token(request: Request):
     if auth_header and auth_header.startswith("Bearer "):
         return auth_header.split(" ")[1]
 
-    token = request.cookies.get('accessToken')
+    token = request.cookies.get('userAccessToken')
 
     if not token:
         raise TokenAbsendException

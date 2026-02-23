@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16
+    container_name: task_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: task_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: task_app
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_NAME: task_db
+      RANDOM_SECRET: ${RANDOM_SECRET}
+      ALGORITHM: ${ALGORITHM}
+
+volumes:
+  postgres_data:
