@@ -20,14 +20,8 @@ services:
       - "8000:8000"
     depends_on:
       - db
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASS: postgres
-      DB_NAME: task_db
-      RANDOM_SECRET: ${RANDOM_SECRET}
-      ALGORITHM: ${ALGORITHM}
+    env_file:
+      .env
 
 volumes:
   postgres_data:
