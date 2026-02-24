@@ -19,7 +19,10 @@ router = APIRouter(prefix='/users',
 async def register_user(response: Response, user_data: SUserRegister):
     existing_user = await UsersDAO.find_one_or_none(email=user_data.email)
     if existing_user:
-        raise UserAlreadyExistsException
+        if not existing_user.is_active:
+            await UsersDAO.delete_by_id(existing_user.id)
+        else:
+            raise UserAlreadyExistsException
 
     role = await RolesDAO.find_one_or_none(name='USER')
 
