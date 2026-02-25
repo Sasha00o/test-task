@@ -104,6 +104,12 @@ async def update_user_by_id(
     return user
 
 
+@router.delete('/me', status_code=204)
+async def delete_me(current_user=Depends(CheckUserPermission("USERS", 'delete_p'))):
+    await UsersDAO.delete_user_by_id(id=current_user.id)
+    return
+
+
 @router.delete('/{id}', status_code=204)
 async def delete_user(
     id: uuid.UUID,
