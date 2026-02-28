@@ -83,15 +83,16 @@ async def get_users_me(current_user: Users = Depends(
 
 
 @router.patch('/me')
-async def update_users_me(user_data: SUserUpdate,
-                          current_user: Users = Depends(get_current_user)):
+async def update_users_me(
+    user_data: dict,
+    current_user: Users = Depends(get_current_user),
+):
     """
     Частичное обновление данных своего профиля (имя, фамилия и т.д.).
     """
-    update_data = user_data.model_dump(exclude_unset=True)
-    if not update_data:
+    if not user_data:
         return current_user
-    user = await UsersDAO.update_by_id(id=current_user.id, **update_data)
+    user = await UsersDAO.update_by_id(id=current_user.id, **user_data)
     return user
 
 

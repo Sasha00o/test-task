@@ -7,6 +7,11 @@ from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime, timezone
 
 
+def _utcnow_naive() -> datetime:
+    """Naive UTC datetime using non-deprecated API."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
 class Goods(Base):
     __tablename__ = 'goods'
 
@@ -19,5 +24,5 @@ class Goods(Base):
     owner_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey('businesses.id'), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now(timezone.utc))
+        DateTime, default=_utcnow_naive)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)

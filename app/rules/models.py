@@ -10,7 +10,11 @@ class Resources(Base):
     __tablename__ = 'resources'
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, primary_key=True)
+        UUID(as_uuid=True),
+        primary_key=True,
+        nullable=False,
+        default=uuid.uuid4,
+    )
     name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
 
 
@@ -18,7 +22,11 @@ class Rules(Base):
     __tablename__ = 'access_roles_rules'
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, primary_key=True)
+        UUID(as_uuid=True),
+        primary_key=True,
+        nullable=False,
+        default=uuid.uuid4,
+    )
     role_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('roles.id'))
     resource_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('resources.id'))
     read_p: Mapped[bool] = mapped_column(Boolean, nullable=False)
@@ -34,5 +42,9 @@ class Roles(Base):
     __tablename__ = 'roles'
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, primary_key=True)
+        UUID(as_uuid=True),
+        primary_key=True,
+        nullable=False,
+        default=uuid.uuid4,
+    )
     name: Mapped[str] = mapped_column(String, unique=True, nullable=False)

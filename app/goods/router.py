@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request, HTTPException
 
 from app.exceptions import NotFoundException, InsufficientPermissionsException
 from app.goods.dao import GoodsDAO
@@ -12,9 +12,23 @@ router = APIRouter(prefix='/goods',
 
 
 @router.get('')
-async def get_goods(
-    current_user=Depends(CheckUserPermission("GOODS", "read_all_p"))
-):
+async def get_goods(request: Request):
+    """
+    Получение списка товаров.
+    Доступно как обычным пользователям, так и бизнесу
+    при наличии соответствующих прав на ресурс GOODS.
+    """
+    # Попробуем авторизовать как пользователя
+    try:
+        await CheckUserPermission("GOODS", "read_all_p")(request)
+    except HTTPException as user_exc:
+        # Если не получилось — пробуем как бизнес
+        try:
+            await CheckBusinessPermission("GOODS", "read_all_p")(request)
+        except HTTPException:
+            # Если ни как пользователь, ни как бизнес — отдаем первую ошибку
+            raise user_exc
+
     goods = await GoodsDAO.find_all(is_active=True)
     return goods
 

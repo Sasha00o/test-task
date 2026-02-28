@@ -10,11 +10,13 @@ from app.businesses.dependencies import get_current_businesses
 from fastapi import Depends
 
 
-router = APIRouter(prefix='/businesses',
-                   tags=['Бизнесы'])
+router = APIRouter(
+    prefix='/businesses',
+    tags=['Бизнесы'],
+)
 
 
-@router.post('/auth/register')
+@router.post('/auth/register', status_code=201)
 async def create_businesses(response: Response, business_data: SBusinessRegister):
     """
     Регистрация нового бизнес-аккаунта.

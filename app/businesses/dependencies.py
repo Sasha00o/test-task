@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 from fastapi import Depends, Request, status
@@ -35,7 +35,7 @@ async def get_current_businesses(token: str = Depends(get_token)):
     except JWTError:
         raise IncorrectTokenFormatException
     expire: str = payload.get('exp')
-    if not expire or (int(expire) < int(datetime.utcnow().timestamp())):
+    if not expire or (int(expire) < int(datetime.now(timezone.utc).timestamp())):
         raise TokenExpiredException
     business_id: str = payload.get('sub')
     if not business_id:
