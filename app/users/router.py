@@ -17,6 +17,10 @@ router = APIRouter(prefix='/users',
 
 @router.post('/auth/register', status_code=201)
 async def register_user(response: Response, user_data: SUserRegister):
+    """
+    Регистрация нового пользователя.
+    Проверяет существование email, хэширует пароль и выдает JWT куку.
+    """
     existing_user = await UsersDAO.find_one_or_none(email=user_data.email)
     if existing_user:
         if not existing_user.is_active:
@@ -43,6 +47,10 @@ async def register_user(response: Response, user_data: SUserRegister):
 
 @router.post('/auth/login')
 async def login_user(response: Response, user_data: SUserLogin):
+    """
+    Авторизация пользователя.
+    Проверяет email и пароль, выдает авторизационную куку.
+    """
     user = await authenticate_user(user_data.email, user_data.password)
     if not user:
         raise IncorrectEmailOrPasswordException
@@ -57,6 +65,10 @@ async def login_user(response: Response, user_data: SUserLogin):
 
 @router.post('/auth/logout')
 async def logout_users(response: Response):
+    """
+    Выход из аккаунта пользователя.
+    Очищает куку с JWT-токеном.
+    """
     response.delete_cookie('userAccessToken')
     return {'ok': True}
 
@@ -64,12 +76,18 @@ async def logout_users(response: Response):
 @router.get('/me')
 async def get_users_me(current_user: Users = Depends(
         get_current_user)):
+    """
+    Получение данных текущего авторизованного пользователя.
+    """
     return current_user
 
 
 @router.patch('/me')
 async def update_users_me(user_data: SUserUpdate,
                           current_user: Users = Depends(get_current_user)):
+    """
+    Частичное обновление данных своего профиля (имя, фамилия и т.д.).
+    """
     update_data = user_data.model_dump(exclude_unset=True)
     if not update_data:
         return current_user
@@ -106,6 +124,10 @@ async def update_user_by_id(
 
 @router.delete('/me', status_code=204)
 async def delete_me(current_user=Depends(CheckUserPermission("USERS", 'delete_p'))):
+    """
+    Удаление собственного аккаунта (мягкое удаление).
+    Пользователь больше не сможет войти (is_active = False).
+    """
     await UsersDAO.delete_user_by_id(id=current_user.id)
     return
 

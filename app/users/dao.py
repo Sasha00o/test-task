@@ -15,7 +15,7 @@ class UsersDAO(BaseDAO):
             stmt = (
                 update(Users)
                 .where(Users.id == id)
-                .values(isActive=False)
+                .values(is_active=False)
             )
 
             result = await session.execute(stmt)

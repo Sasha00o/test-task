@@ -25,7 +25,7 @@ ON CONFLICT (name) DO NOTHING;
 
 -- 2.5 Создание базового администратора (admin@admin.com / admin123)
 -- Пароль захеширован с помощью bcrypt (admin123)
-INSERT INTO users (id, email, password_hash, first_name, last_name, surname, role_id, "isActive") VALUES
+INSERT INTO users (id, email, password_hash, first_name, last_name, surname, role_id, is_active) VALUES
 ('11111111-1111-1111-1111-111111111111', 'admin@admin.com', '$2b$12$KQQP3pX.0gV.oMzVpXn1/OuGz9/O8k605l2r2Tf564S3a2H.W45Ea', 'Admin', 'Root', 'System', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', true)
 ON CONFLICT (email) DO NOTHING;
 
